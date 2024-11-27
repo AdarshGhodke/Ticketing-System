@@ -1,19 +1,57 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { createTicket, reset } from "../features/tickets/ticketSlice";
+import Spinner from "../components/Spinner";
+import BackButton from "../components/BackButton";
 
 function NewTicket() {
   const { user } = useSelector((state) => state.auth);
+  const { isLoading, isError, isSucccess, message } = useSelector(
+    (state) => state.tickets
+  );
+
   const [name] = useState(user.name);
   const [email] = useState(user.email);
   const [product, setProduct] = useState("iPhone");
   const [description, setDescription] = useState("");
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSucccess) {
+      dispatch(reset());
+      navigate("/tickets");
+    }
+
+    dispatch(reset());
+  }, [dispatch, isError, isSucccess, navigate, message]);
+
   const onSubmit = (e) => {
     e.preventDefault();
+    // navigate("/tickets");
+    dispatch(createTicket({ product, description }))
+      .unwrap()
+      .then(() => {
+        navigate("/tickets");
+        toast.success("New ticket created!");
+      })
+      .catch(toast.error);
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
+      <BackButton url="/" />
       <section className="heading">
         <h1>Create New Ticket</h1>
         <p>Please fill out the form below</p>
@@ -40,7 +78,7 @@ function NewTicket() {
               onChange={(e) => setProduct(e.target.value)}
             >
               <option value="iPhone">iPhone</option>
-              <option value="Macbook Pro">Macbook Pro</option>
+              <option value="Macbook">Macbook</option>
               <option value="iMac">iMac</option>
               <option value="iPad">iPad</option>
             </select>
