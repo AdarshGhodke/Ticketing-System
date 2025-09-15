@@ -6,6 +6,9 @@ const { errorHandler } = require("./middleware/errorMiddleware");
 const connectDB = require("./config/db");
 const PORT = process.env.PORT || 5000;
 
+const cors = require('cors');
+const FRONTEND_URL = 'https://ticketing-system-08ls.onrender.com';
+
 // Connect to database
 connectDB();
 
@@ -18,19 +21,26 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/tickets", require("./routes/ticketRoutes"));
 
-// Serve frontend
-if (process.env.NODE_ENV === "production") {
-  // Set build folder as static
-  app.use(express.static(path.join(__dirname, "../frontend/build")));
+//for render website deployment:
+// const app = express();
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}));
 
-  app.get("*", (req, res) =>
-    res.sendFile(__dirname, "../", "frontend", "build", "index.html")
-  );
-} else {
-  app.get("/", (req, res) => {
-    res.status(200).json({ message: "Welcome to the Support Desk API" });
-  });
-}
+// Serve frontend
+// if (process.env.NODE_ENV === "production") {
+//   // Set build folder as static
+//   app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+//   app.get("*", (req, res) =>
+//     res.sendFile(__dirname, "../", "frontend", "build", "index.html")
+//   );
+// } else {
+//   app.get("/", (req, res) => {
+//     res.status(200).json({ message: "Welcome to the Support Desk API" });
+//   });
+// }
 
 app.use(errorHandler);
 
