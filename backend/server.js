@@ -17,10 +17,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Routes
-app.use("/api/users", require("./routes/userRoutes"));
-app.use("/api/tickets", require("./routes/ticketRoutes"));
-
 //for render website deployment:
 // const app = express();
 app.use(cors({
@@ -28,19 +24,28 @@ app.use(cors({
   credentials: true
 }));
 
-// Serve frontend
-if (process.env.NODE_ENV === "production") {
-  // Set build folder as static
-  app.use(express.static(path.join(__dirname, "../frontend/build")));
+// Routes
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/tickets", require("./routes/ticketRoutes"));
 
-  app.get("*", (req, res) =>
-    res.sendFile(__dirname, "../", "frontend", "build", "index.html")
-  );
-} else {
-  app.get("/", (req, res) => {
-    res.status(200).json({ message: "Welcome to the Support Desk API" });
-  });
-}
+// Serve frontend
+// if (process.env.NODE_ENV === "production") {
+//   // Set build folder as static
+//   app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+//   app.get("*", (req, res) =>
+//     res.sendFile(__dirname, "../", "frontend", "build", "index.html")
+//   );
+// } else {
+//   app.get("/", (req, res) => {
+//     res.status(200).json({ message: "Welcome to the Support Desk API" });
+//   });
+// }
+
+// Add a simple root route for testing for render
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Welcome to the Support Desk API" });
+});
 
 app.use(errorHandler);
 
